@@ -3,8 +3,7 @@ SMS Server Tools 3
 Copyright (C) 2006- Keijo Kasvi
 http://smstools3.kekekasvi.com/
 
-Based on SMS Server Tools 2 from Stefan Frings
-http://www.meinemullemaus.de/
+Based on SMS Server Tools 2, http://stefanfrings.de/smstools/
 SMS Server Tools version 2 and below are Copyright (C) Stefan Frings.
 
 This program is free software unless you got it under another license directly
@@ -16,7 +15,22 @@ Either version 2 of the License, or (at your option) any later version.
 #ifndef LOGGING_H
 #define LOGGING_H
 
-int trouble_logging_started;
+#include <time.h>
+
+// 3.1.16beta2: Moved logch() and prch() from charset.c to logging.c:
+char logch_buffer[8192];
+
+#ifdef __GNUC__
+void logch(char* format, ...) __attribute__ ((format(printf, 1, 2)));
+#else
+void logch(char* format, ...);
+#endif
+
+char prch(char ch);
+
+// 3.1.16beta: changed type:
+//int trouble_logging_started;
+time_t trouble_logging_started;
 
 int change_loglevel(int new_level);
 void restore_loglevel();
@@ -33,7 +47,13 @@ int openlogfile(char *filename, int facility, int level);
 
 void closelogfile();
 void writelogfile0(int severity, int trouble, char *text);
+
+#ifdef __GNUC__
+void writelogfile(int severity, int trouble, char* format, ...) __attribute__ ((format(printf, 3, 4)));
+#else
 void writelogfile(int severity, int trouble, char* format, ...);
+#endif
+
 void flush_smart_logging();
 
 #endif
